@@ -5,6 +5,7 @@ const { isOriginAllowed } = require('./lib/allowedOrigins');
 
 function createApp(overrides = {}) {
   const app = express();
+  app.set('trust proxy', 1);
 
   const authRoutes = overrides.authRoutes || require('./routes/auth');
   const overviewRoutes = overrides.overviewRoutes || require('./routes/overview');
