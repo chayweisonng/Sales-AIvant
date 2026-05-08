@@ -5,6 +5,7 @@ const { isOriginAllowed } = require('./lib/allowedOrigins');
 
 function createApp(overrides = {}) {
   const app = express();
+  app.set('trust proxy', 1);
 
   // Trust Render/Heroku/etc proxy so req.protocol is 'https' in production
   app.set('trust proxy', 1);
