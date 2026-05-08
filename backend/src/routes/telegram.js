@@ -2,6 +2,8 @@ const express = require('express');
 const { createBot, startPollingBot } = require('../services/telegramService');
 const { requireAuth } = require('../middleware/auth');
 const { supabase } = require('../services/supabaseClient');
+const { getOrCreateConversation, saveMessage } = require('../services/conversationService');
+const { askQuestion } = require('../services/chatService');
 
 const router = express.Router();
 const TELEGRAM_SECRET_HEADER = 'x-telegram-bot-api-secret-token';
@@ -113,12 +115,49 @@ router.post('/webhook', async (req, res) => {
       return res.status(404).end();
     }
 
-    // 2. Create a temporary bot instance and handle update
-    const bot = createBot(settings.telegram_bot_token, { companyId: company_id });
-    await bot.handleUpdate(req.body, res);
+    const update = req.body;
+
+    // Acknowledge Telegram immediately — must respond within 5s
+    res.status(200).end();
+
+    // 2. Process the update manually so we fully control saving + AI response
+    const message = update?.message;
+    if (!message?.text) return; // ignore non-text updates (stickers, photos, etc.)
+
+    const userIdentifier = message.from?.username || message.from?.id?.toString();
+    const chatId = message.chat.id;
+    const userText = message.text;
+
+    try {
+      const { conversationId, companyId: resolvedCompanyId } = await getOrCreateConversation(
+        userIdentifier,
+        'telegram',
+        company_id
+      );
+
+      // Save user message
+      await saveMessage(conversationId, 'user', userText);
+
+      // Get AI response
+      const aiResponse = await askQuestion(userText, conversationId, resolvedCompanyId);
+
+      // Save assistant message
+      await saveMessage(conversationId, 'assistant', aiResponse);
+
+      // Reply via Telegram
+      const bot = createBot(settings.telegram_bot_token, { companyId: company_id });
+      await bot.telegram.sendMessage(chatId, aiResponse);
+    } catch (processingError) {
+      console.error('Webhook message processing error:', processingError);
+      // Best-effort fallback reply
+      try {
+        const bot = createBot(settings.telegram_bot_token, { companyId: company_id });
+        await bot.telegram.sendMessage(chatId, "I'm sorry, I'm having a bit of trouble right now.");
+      } catch (_) {}
+    }
   } catch (error) {
     console.error('Webhook processing error:', error);
-    res.status(500).end();
+    if (!res.headersSent) res.status(500).end();
   }
 });
 

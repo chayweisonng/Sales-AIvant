@@ -58,9 +58,13 @@ async function saveMessage(conversationId, role, content) {
         content
       });
     
-    if (error) throw error;
+    if (error) {
+      console.error('saveMessage DB error:', JSON.stringify(error));
+      throw error;
+    }
   } catch (error) {
-    console.error('Error saving message:', error);
+    console.error('Error saving message (role=%s, convId=%s):', role, conversationId, error.message || error);
+    throw error;
   }
 }
 
