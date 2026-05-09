@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await api.post('/api/auth/login', { email, password });
 
+    setAccessToken(data.accessToken || null);
     setUser(data.user || null);
     setCompany(data.company || null);
     setAccessTokenState(data.accessToken || null);
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post('/api/auth/signup', { email, password, companyName });
 
     if (data.user) {
+      setAccessToken(data.accessToken || null);
       setUser(data.user || null);
       setCompany(data.company || null);
       setAccessTokenState(data.accessToken || null);
@@ -109,6 +111,7 @@ export const AuthProvider = ({ children }) => {
   const fetchSession = async () => {
     try {
       const { data } = await api.get('/api/auth/session');
+      if (data.accessToken) setAccessToken(data.accessToken);
       setUser(data.user || null);
       setCompany(data.company || null);
       setAccessTokenState(data.accessToken || null);
