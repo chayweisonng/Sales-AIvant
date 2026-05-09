@@ -8,6 +8,7 @@ const { createRateLimitMiddleware } = require('../middleware/rateLimit');
 function formatAuthPayload(session, company) {
   return {
     expiresAt: session?.expires_at || null,
+    accessToken: session?.access_token || null,
     user: session?.user
       ? {
         id: session.user.id,
@@ -194,6 +195,7 @@ function createAuthRouter(deps = {}) {
 
   router.get('/session', authGuard, async (req, res) => {
     res.status(200).json({
+      accessToken: req.accessToken,
       user: {
         id: req.user.id,
         email: req.user.email,
