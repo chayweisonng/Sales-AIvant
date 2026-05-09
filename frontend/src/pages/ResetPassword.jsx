@@ -16,13 +16,19 @@ export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { exchangeResetCode, resetPassword, fetchSession, isAuthenticated } = useAuth();
+  const hasRun = React.useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const handleValidation = async () => {
       try {
         // 1. Check for query parameter code (PKCE Flow)
         const code = searchParams.get('code');
         if (code) {
+          // Strip the code from the URL immediately so a re-render can't reuse it
+          window.history.replaceState({}, document.title, window.location.pathname);
           await exchangeResetCode(code);
           setIsValid(true);
           setVerifying(false);
@@ -36,7 +42,7 @@ export default function ResetPassword() {
           const accessToken = params.get('access_token');
           if (accessToken) {
             await api.post('/api/auth/session-cookie', { accessToken });
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            window.history.replaceState({}, document.title, window.location.pathname);
             await fetchSession();
             setIsValid(true);
             setVerifying(false);
@@ -63,7 +69,7 @@ export default function ResetPassword() {
     };
 
     handleValidation();
-  }, [searchParams, exchangeResetCode, fetchSession, isAuthenticated]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleReset = async () => {
     try {
