@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Button, Drawer } from 'antd';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Layout, Button, Drawer, Tooltip } from 'antd';
 import {
   BarChart3,
   FileText,
@@ -7,11 +7,17 @@ import {
   Users,
   Bot,
   LogOut,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  HelpCircle,
 } from 'lucide-react';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SalesAivantFullLogo } from '../components/SalesAivantLogo';
+import GuidedTour, {
+  isTourCompleted,
+  markTourCompleted,
+  resetTour,
+} from '../components/GuidedTour';
 
 const { Content, Sider } = Layout;
 
@@ -22,6 +28,31 @@ const DashboardLayout = () => {
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+
+  // Refs for tour targets — sidebar nav items
+  const refOverview = useRef(null);
+  const refSettings = useRef(null);
+  const refDocuments = useRef(null);
+  const refConversations = useRef(null);
+  const refLeads = useRef(null);
+
+  const tourRefs = {
+    overview: refOverview,
+    settings: refSettings,
+    documents: refDocuments,
+    conversations: refConversations,
+    leads: refLeads,
+  };
+
+  // Mapping menu keys to refs
+  const refMap = {
+    '/': refOverview,
+    '/settings': refSettings,
+    '/documents': refDocuments,
+    '/conversations': refConversations,
+    '/leads': refLeads,
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -34,6 +65,37 @@ const DashboardLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Auto-launch tour for first-time users (desktop only)
+  useEffect(() => {
+    if (user && !isMobile) {
+      const userId = user.id || user.email || 'default';
+      if (!isTourCompleted(userId)) {
+        // Small delay to let the layout render + refs attach
+        const timer = setTimeout(() => setTourOpen(true), 600);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, isMobile]);
+
+  const handleTourClose = useCallback(() => {
+    setTourOpen(false);
+    if (user) {
+      const userId = user.id || user.email || 'default';
+      markTourCompleted(userId);
+    }
+  }, [user]);
+
+  const handleRestartTour = useCallback(() => {
+    if (user) {
+      const userId = user.id || user.email || 'default';
+      resetTour(userId);
+    }
+    // Navigate to overview so the tour starts in context
+    navigate('/');
+    setDrawerVisible(false);
+    setTimeout(() => setTourOpen(true), 400);
+  }, [user, navigate]);
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -82,6 +144,7 @@ const DashboardLayout = () => {
             return (
               <div
                 key={item.key}
+                ref={!closeDrawerOnNavigate ? refMap[item.key] : undefined}
                 onClick={() => {
                   navigate(item.key);
                   if (closeDrawerOnNavigate) setDrawerVisible(false);
@@ -117,7 +180,7 @@ const DashboardLayout = () => {
         </div>
       </div>
 
-      {/* Bottom: Profile & Logout */}
+      {/* Bottom: Tour + Profile & Logout */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -125,6 +188,28 @@ const DashboardLayout = () => {
         paddingTop: '20px',
         borderTop: '1px solid #2a2a2a'
       }}>
+        {/* Restart Tour Button */}
+        <Tooltip title="Restart guided tour" placement="right">
+          <div
+            onClick={handleRestartTour}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#888',
+              background: 'transparent',
+            }}
+            className="sidebar-nav-item"
+          >
+            <HelpCircle size={18} />
+            <span style={{ fontWeight: 500 }}>Getting Started</span>
+          </div>
+        </Tooltip>
+
         {/* Profile Card */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 8px' }}>
           <div style={{
@@ -280,6 +365,15 @@ const DashboardLayout = () => {
           </div>
         </Content>
       </Layout>
+
+      {/* Guided Tour */}
+      {!isMobile && (
+        <GuidedTour
+          open={tourOpen}
+          onClose={handleTourClose}
+          refs={tourRefs}
+        />
+      )}
     </Layout>
   );
 };

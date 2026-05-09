@@ -263,3 +263,83 @@ code {
 .stitch-sidebar-drawer .ant-drawer-body {
   padding: 0 !important;
 }
+
+/* ── Guided Tour Overrides ── */
+.ant-tour {
+  --antd-arrow-background-color: #1a1a1a;
+}
+
+.ant-tour .ant-tour-inner {
+  background: #1a1a1a !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(250, 255, 105, 0.06) !important;
+}
+
+.ant-tour .ant-tour-header {
+  padding-bottom: 0 !important;
+}
+
+.ant-tour .ant-tour-title {
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+.ant-tour .ant-tour-description {
+  color: #999 !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+
+.ant-tour .ant-tour-footer {
+  border-top: 1px solid #2a2a2a !important;
+}
+
+.ant-tour .ant-tour-indicators .ant-tour-indicator {
+  background: #333 !important;
+}
+
+.ant-tour .ant-tour-indicators .ant-tour-indicator-active {
+  background: #faff69 !important;
+}
+
+.ant-tour .ant-tour-prev-btn {
+  color: #888 !important;
+  border-color: #333 !important;
+  background: transparent !important;
+}
+
+.ant-tour .ant-tour-prev-btn:hover {
+  color: #fff !important;
+  border-color: #555 !important;
+}
+
+.ant-tour .ant-tour-next-btn {
+  background: #faff69 !important;
+  color: #0a0a0a !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.ant-tour .ant-tour-next-btn:hover {
+  background: #e6eb52 !important;
+}
+
+.ant-tour .ant-tour-close {
+  color: #666 !important;
+}
+
+.ant-tour .ant-tour-close:hover {
+  color: #fff !important;
+}
+
+.ant-tour .ant-tour-arrow::before,
+.ant-tour .ant-tour-arrow::after {
+  background: #1a1a1a !important;
+}
+
+/* Tour overlay mask */
+.ant-tour-mask {
+  fill: rgba(0, 0, 0, 0.7) !important;
+}
