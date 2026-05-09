@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Button, Typography, Card, Spin, Divider, App, Tag } from 'antd';
+import { Form, Input, Select, Button, Typography, Card, Spin, Divider, App, Tag, Alert } from 'antd';
 import { Save, Settings as SettingsIcon, Send } from 'lucide-react';
 import api from '../lib/api';
 
@@ -15,11 +15,15 @@ const Settings = () => {
   const [connecting, setConnecting] = useState(false);
   const [telegramInfo, setTelegramInfo] = useState(null);
   const [isChangingBot, setIsChangingBot] = useState(false);
+  const [indexedDocCount, setIndexedDocCount] = useState(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const { data } = await api.get('/api/settings');
+        const [{ data }, { data: docs }] = await Promise.all([
+          api.get('/api/settings'),
+          api.get('/api/documents'),
+        ]);
         form.setFieldsValue(data);
         if (data.telegram_bot_username) {
           setTelegramInfo({
@@ -30,6 +34,8 @@ const Settings = () => {
         } else {
           setIsChangingBot(true);
         }
+        const indexed = (docs || []).filter((d) => d.status === 'indexed').length;
+        setIndexedDocCount(indexed);
       } catch (error) {
         message.error('Failed to load settings');
       } finally {
@@ -151,6 +157,22 @@ const Settings = () => {
             </div>
           }
         >
+          {indexedDocCount === 0 && (
+            <Alert
+              type="warning"
+              showIcon
+              style={{ marginBottom: '20px' }}
+              message="Knowledge base required"
+              description={
+                <span>
+                  You need at least <strong>1 indexed document</strong> in your{' '}
+                  <a href="/documents">Knowledge Base</a> before you can activate the Telegram bot.
+                  The bot won't be able to answer questions without source material.
+                </span>
+              }
+            />
+          )}
+
           {(!telegramInfo || isChangingBot) ? (
             <>
               <Text type="secondary" style={{ display: 'block', marginBottom: '16px' }}>

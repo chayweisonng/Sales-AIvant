@@ -26,6 +26,22 @@ router.post('/connect', requireAuth, async (req, res) => {
   }
 
   try {
+    // Enforce at least one indexed knowledge base document before allowing bot activation
+    const { count, error: countError } = await supabase
+      .from('documents')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('status', 'indexed');
+
+    if (countError) throw countError;
+
+    if (!count || count === 0) {
+      return res.status(400).json({
+        error:
+          'Your knowledge base is empty. Please upload and index at least one document before activating the Telegram bot.',
+      });
+    }
+
     console.log('Connecting bot with token:', token.substring(0, 10) + '...');
     const tempBot = createBot(token, { companyId });
     console.log('Fetching bot info...');
