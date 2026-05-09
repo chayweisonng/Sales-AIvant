@@ -99,16 +99,16 @@ const GuidedTour = ({ open, onClose, refs }) => {
             strong
             style={{
               fontSize: '20px',
-              color: '#fff',
+              color: '#0a0a0a',
               display: 'block',
               marginBottom: '8px',
             }}
           >
-            Welcome to Sales AIVant! 🎉
+            Welcome to Sales AIVant!
           </Text>
           <Text
             style={{
-              color: '#999',
+              color: '#0a0a0a',
               fontSize: '14px',
               lineHeight: '1.6',
               display: 'block',
@@ -131,7 +131,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
         </div>
       ),
       description: (
-        <Text style={{ color: '#999' }}>
+        <Text style={{ color: '#0a0a0a' }}>
           Your command center. See total conversations, captured leads, and
           indexed knowledge docs at a glance. Start here every time you log in.
         </Text>
@@ -147,7 +147,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
         </div>
       ),
       description: (
-        <Text style={{ color: '#999' }}>
+        <Text style={{ color: '#0a0a0a' }}>
           Configure your AI agent's personality, tone, and system instructions.
           This is also where you connect your Telegram bot to go live.
         </Text>
@@ -163,7 +163,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
         </div>
       ),
       description: (
-        <Text style={{ color: '#999' }}>
+        <Text style={{ color: '#0a0a0a' }}>
           Upload product docs, FAQs, and sales materials here. Your AI agent
           uses these to answer customer questions accurately. You need at least 1
           document before going live.
@@ -180,7 +180,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
         </div>
       ),
       description: (
-        <Text style={{ color: '#999' }}>
+        <Text style={{ color: '#0a0a0a' }}>
           Monitor all live and past customer conversations in real-time. Review
           what your AI agent is saying and how customers are responding.
         </Text>
@@ -196,7 +196,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
         </div>
       ),
       description: (
-        <Text style={{ color: '#999' }}>
+        <Text style={{ color: '#0a0a0a' }}>
           Every customer who shows buying intent gets captured here
           automatically. Review contact details, interest level, and follow up at
           the right time.
@@ -236,7 +236,7 @@ const GuidedTour = ({ open, onClose, refs }) => {
           </Text>
           <Text
             style={{
-              color: '#999',
+              color: '#0a0a0a',
               fontSize: '14px',
               lineHeight: '1.6',
               display: 'block',
